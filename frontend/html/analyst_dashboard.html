@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Colón | Panel Analista</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <nav class="cm-navbar">
+        <div class="cm-nav-left">
+            <img class="cm-logo" src="/img/media-3556053682.jpg" alt="Clínica Colón">
+            <div>
+                <h1>Clínica Colón</h1>
+                <small>Panel del Analista de Datos · Consultora Médica</small>
+            </div>
+        </div>
+        <button class="cm-tab btn-logout" style="color:#fff; background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.4);">Cerrar sesión</button>
+    </nav>
+
+    <main class="cm-container">
+        <div class="cm-hero">
+            <h2>Panel del Analista de Datos</h2>
+            <p>Estadística descriptiva e inferencial sobre la muestra histórica y la operación en vivo</p>
+        </div>
+        <div class="cm-card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <span style="font-weight:600;">Reporte estadístico completo de la clínica</span>
+            <button id="btnExportar" class="cm-tab active">Exportar Excel (.xlsx)</button>
+        </div>
+
+        <div class="cm-section parte1">
+            <h2>PARTE 1 · Análisis sobre la Muestra Histórica (n = 100 consultas)</h2>
+            <p>Datos fijos de la muestra del integrador: validación del modelo de regresión, correlación de Pearson, ANOVA, inferencia y outliers.</p>
+        </div>
+
+        <div class="cm-grid" id="kpis"></div>
+
+        <div class="cm-card">
+            <h2>Análisis Descriptivo por Doctor (Coeficiente de Variación)</h2>
+            <div id="tablaDescriptiva"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Regresión: Edad vs Tiempo de Atención</h2>
+            <canvas id="chartEdad" style="max-height:340px;"></canvas>
+        </div>
+
+        <div class="cm-card">
+            <h2>Regresión: Experiencia vs Tiempo de Atención</h2>
+            <canvas id="chartExp" style="max-height:340px;"></canvas>
+        </div>
+
+        <div class="cm-card">
+            <h2>Casos Atípicos Detectados (|e| > 2·se)</h2>
+            <div id="tablaOutliers"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Medidas de Posición y Dispersión (muestra n=100)</h2>
+            <div id="tablaMedidasPosicion"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Inferencia Estadística: Test de Hipótesis e Intervalos de Confianza (Edad vs Tiempo)</h2>
+            <div id="tablaInferencia"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Tabla ANOVA de la Regresión (Edad vs Tiempo)</h2>
+            <div id="tablaAnova"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Gráfico de Residuos (Edad vs Tiempo)</h2>
+            <canvas id="chartResiduos" style="max-height:300px;"></canvas>
+        </div>
+
+        <div class="cm-section parte2">
+            <h2>PARTE 2 · Análisis sobre la Operación en Vivo (turnos reales)</h2>
+            <p>Datos dinámicos que se actualizan cuando los médicos atienden turnos y cargan el tiempo real: espera entre pacientes, demora vs estimado y desempeño por doctor.</p>
+        </div>
+
+        <div class="cm-card">
+            <h2>Análisis de Turnos Reales: Tiempos de Espera y Demora</h2>
+            <div class="cm-grid" id="kpisTurnos"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Indicadores por Doctor (tiempos reales)</h2>
+            <div id="tablaAnalisisTurnos"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Espera y Demora Media por Doctor</h2>
+            <canvas id="chartEspera" style="max-height:340px;"></canvas>
+        </div>
+
+        <div class="cm-card">
+            <h2>Inferencia sobre Turnos Reales (Edad vs Tiempo Real)</h2>
+            <div id="tablaInferenciaReal"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Gráfico de Residuos del Modelo Real</h2>
+            <canvas id="chartResiduosReales" style="max-height:300px;"></canvas>
+        </div>
+
+        <div class="cm-card">
+            <h2>Detalle de Turnos Atendidos</h2>
+            <div id="tablaRegistrosTurnos"></div>
+        </div>
+    </main>
+
+    <script src="/js/utils/auth_helper.js"></script>
+    <script src="/js/services/api_service.js"></script>
+    <script src="/js/components/ui_handlers.js"></script>
+    <script src="/js/services/stats_renderer.js"></script>
+    <script src="/js/front_controllers/analyst_front_controller.js"></script>
+</body>
+</html>

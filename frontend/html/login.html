@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Colón | Login</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="cm-navbar">
+        <div class="cm-nav-left">
+            <img class="cm-logo" src="/img/media-3556053682.jpg" alt="Clínica Colón">
+            <div>
+                <h1>Clínica Colón</h1>
+            </div>
+        </div>
+    </nav>
+
+    <main class="cm-container">
+        <div class="cm-auth-wrap">
+            <div class="cm-auth-media">
+                <img src="/img/colon-07-1-663529491.png" alt="Clínica Colón">
+                <div class="cm-auth-media-overlay">
+                    <h2>Clínica Colón</h2>
+                    <p>Plataforma de gestión de turnos y análisis estadístico de la clínica</p>
+                </div>
+            </div>
+            <div class="cm-card cm-auth-form">
+                <h2>Iniciar Sesión</h2>
+                <form id="loginForm" class="cm-form">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" autocomplete="username" required>
+
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" autocomplete="current-password" required>
+
+                    <div style="margin-top:16px; display:flex; gap:10px; align-items:center;">
+                        <button type="submit" class="cm-tab active" style="flex:1;">Ingresar</button>
+                    </div>
+                </form>
+                <p style="text-align:center; margin-top:14px;">
+                    <a href="/register">¿No tenés cuenta? Registrate como paciente</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/utils/auth_helper.js"></script>
+    <script src="/js/services/api_service.js"></script>
+    <script src="/js/components/ui_handlers.js"></script>
+    <script src="/js/front_controllers/auth_front_controller.js"></script>
+</body>
+</html>

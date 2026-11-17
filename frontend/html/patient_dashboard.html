@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Colón | Panel Paciente</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="cm-navbar">
+        <div class="cm-nav-left">
+            <img class="cm-logo" src="/img/media-3556053682.jpg" alt="Clínica Colón">
+            <div>
+                <h1>Clínica Colón</h1>
+                <small>Panel del Paciente · Consultora Médica</small>
+            </div>
+        </div>
+        <button class="cm-tab btn-logout" style="color:#fff; background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.4);">Cerrar sesión</button>
+    </nav>
+
+    <main class="cm-container">
+        <div class="cm-hero">
+            <h2>Panel del Paciente</h2>
+            <p>Reservá tus turnos, gestioná tus datos personales y consultá tu información</p>
+        </div>
+        <div class="cm-card">
+            <h2>Mi Información Personal</h2>
+            <button id="btnEditarPerfil" class="cm-tab active" style="margin-bottom:14px;">Modificar mis datos</button>
+            <div id="infoPersonal"></div>
+        </div>
+
+        <div class="cm-card">
+            <h2>Reservar un Turno</h2>
+            <form id="turnoForm" class="cm-form">
+                <label for="id_doctor">Doctor</label>
+                <select id="id_doctor" required></select>
+
+                <label for="fecha_turno">Fecha</label>
+                <input type="date" id="fecha_turno" required>
+
+                <label for="hora_turno">Hora</label>
+                <input type="time" id="hora_turno" required>
+
+                <div style="margin-top:16px;">
+                    <button type="submit" class="cm-tab active" style="width:100%;">Reservar turno</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="cm-card">
+            <h2>Mis Turnos</h2>
+            <div id="tablaTurnos"></div>
+        </div>
+    </main>
+
+    <script src="/js/utils/auth_helper.js"></script>
+    <script src="/js/services/api_service.js"></script>
+    <script src="/js/components/ui_handlers.js"></script>
+    <script src="/js/front_controllers/patient_front_controller.js"></script>
+</body>
+</html>

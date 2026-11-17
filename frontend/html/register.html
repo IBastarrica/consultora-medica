@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Colón | Registro</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="cm-navbar">
+        <div class="cm-nav-left">
+            <img class="cm-logo" src="/img/media-3556053682.jpg" alt="Clínica Colón">
+            <div>
+                <h1>Clínica Colón</h1>
+                <small>Registro de pacientes</small>
+            </div>
+        </div>
+    </nav>
+
+    <main class="cm-container">
+        <div class="cm-auth-wrap">
+            <div class="cm-auth-media">
+                <img src="/img/colon-07-1-663529491.png" alt="Clínica Colón">
+                <div class="cm-auth-media-overlay">
+                    <h2>Creá tu cuenta</h2>
+                    <p>Reservá tus turnos online y recibí tu email institucional de la clínica</p>
+                </div>
+            </div>
+            <div class="cm-card cm-auth-form">
+                <h2>Crear Cuenta de Paciente</h2>
+                <form id="registerForm" class="cm-form">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" autocomplete="username" required>
+
+                <label for="password">Contraseña (mínimo 6 caracteres)</label>
+                <input type="password" id="password" autocomplete="new-password" required>
+
+                <label for="nombre">Nombre</label>
+                <input type="text" id="nombre" required>
+
+                <label for="apellido">Apellido</label>
+                <input type="text" id="apellido" required>
+
+                <label for="ciudad">Ciudad de residencia</label>
+                <input type="text" id="ciudad" required>
+
+                <label for="nacionalidad">Nacionalidad</label>
+                <input type="text" id="nacionalidad" required>
+
+                <label for="fecha_nacimiento">Fecha de nacimiento</label>
+                <input type="date" id="fecha_nacimiento" required>
+
+                <label for="edad">Edad (opcional, se usa para estimar la duración del turno)</label>
+                <input type="number" id="edad" min="1" max="120">
+
+                <div style="margin-top:16px;">
+                    <button type="submit" class="cm-tab active" style="width:100%;">Registrarme</button>
+                </div>
+            </form>
+            <p style="text-align:center; margin-top:14px;">
+                <a href="/login">Ya tengo cuenta, volver al login</a>
+            </p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/utils/auth_helper.js"></script>
+    <script src="/js/services/api_service.js"></script>
+    <script src="/js/components/ui_handlers.js"></script>
+    <script src="/js/front_controllers/auth_front_controller.js"></script>
+</body>
+</html>
