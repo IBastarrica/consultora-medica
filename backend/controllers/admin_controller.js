@@ -182,6 +182,10 @@ class AdminController {
     exportarExcel(req, res, next) {
         return analystController.exportarExcel(req, res, next);
     }
+
+    getConclusiones(req, res, next) {
+        return analystController.getConclusiones(req, res, next);
+    }
 }
 
 module.exports = new AdminController();

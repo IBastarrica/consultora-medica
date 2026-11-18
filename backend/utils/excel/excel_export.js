@@ -13,7 +13,7 @@ const redondear = (v, dec = 2) => (v === null || v === undefined || Number.isNaN
  * @param {Object} datos - { descriptiva, regresion, turnos }
  * @returns {Promise<Buffer>} Buffer binario del .xlsx.
  */
-async function generarReporteExcel({ descriptiva, regresion, turnos }) {
+async function generarReporteExcel({ descriptiva, regresion, turnos, conclusiones }) {
     const wb = new ExcelJS.Workbook();
     wb.creator = 'Consultora Médica';
     wb.created = new Date();
@@ -121,7 +121,20 @@ async function generarReporteExcel({ descriptiva, regresion, turnos }) {
         se: redondear(mE.se, 3)
     }));
 
-    // ---------- Hoja 4: PARTE 2 · Turnos reales (detalle) ----------
+    // ---------- Hoja 4: PARTE 1 · Probabilidades (modelo normal) ----------
+    const wsProb = wb.addWorksheet('1d-Muestra-Probabilidades');
+    wsProb.columns = [
+        { header: 'Métrica', key: 'metrica', width: 52 },
+        { header: 'Valor', key: 'valor', width: 26 }
+    ];
+    const prob = regresion.probabilidades || {};
+    wsProb.addRow({ metrica: 'Modelo ajustado', valor: `T ~ N(${redondear(prob.media)} min, ${redondear(prob.desvio)} min)` });
+    wsProb.addRow({ metrica: 'P(T > 30 min)', valor: `${redondear(prob.p_mayor_30 * 100, 2)}%` });
+    wsProb.addRow({ metrica: 'P(T > 40 min)', valor: `${redondear(prob.p_mayor_40 * 100, 2)}%` });
+    wsProb.addRow({ metrica: 'P(25 < T < 35 min)', valor: `${redondear(prob.p_entre_25_35 * 100, 2)}%` });
+    wsProb.addRow({ metrica: 'Percentil 90', valor: `${redondear(prob.percentil_90, 2)} min` });
+
+    // ---------- Hoja 5: PARTE 2 · Turnos reales (detalle) ----------
     const wsTurnos = wb.addWorksheet('2a-Turnos-Detalle');
     wsTurnos.columns = [
         { header: 'Fecha', key: 'fecha', width: 12 },
@@ -175,7 +188,7 @@ async function generarReporteExcel({ descriptiva, regresion, turnos }) {
         n_esperas: d.n_esperas
     }));
 
-    // ---------- Hoja 6: PARTE 2 · Inferencia del modelo real ----------
+    // ---------- Hoja 7: PARTE 2 · Inferencia del modelo real ----------
     const wsInf = wb.addWorksheet('2c-Turnos-Inferencia');
     wsInf.columns = [
         { header: 'Métrica', key: 'metrica', width: 46 },
@@ -195,6 +208,39 @@ async function generarReporteExcel({ descriptiva, regresion, turnos }) {
     wsInf.addRow({ metrica: 'ρ Spearman (edad vs real)', valor: redondear(turnos.spearman_real, 4) });
     wsInf.addRow({ metrica: 'r calibración (estimado vs real)', valor: redondear(cal.r, 4) });
     wsInf.addRow({ metrica: 'ρ Spearman (estimado vs real)', valor: redondear(turnos.spearman_calibracion, 4) });
+
+    // ---------- Hoja 8: PARTE 2 · Probabilidades de la operación ----------
+    const wsProb2 = wb.addWorksheet('2d-Turnos-Probabilidades');
+    wsProb2.columns = [
+        { header: 'Métrica', key: 'metrica', width: 52 },
+        { header: 'Valor', key: 'valor', width: 26 }
+    ];
+    const prob2 = turnos.probabilidades || {};
+    if (prob2.reales) {
+        wsProb2.addRow({ metrica: 'Tiempo real: P(T > 35 min)', valor: `${redondear(prob2.reales.p_mayor_35 * 100, 2)}%` });
+        wsProb2.addRow({ metrica: 'Tiempo real: P(T > 40 min)', valor: `${redondear(prob2.reales.p_mayor_40 * 100, 2)}%` });
+    }
+    if (prob2.demoras) {
+        wsProb2.addRow({ metrica: 'Demora: P(demora > 10 min)', valor: prob2.demoras.p_mayor_10 !== null ? `${redondear(prob2.demoras.p_mayor_10 * 100, 2)}%` : '-' });
+        wsProb2.addRow({ metrica: 'Proporción de turnos que se demoran (p)', valor: `${redondear(prob2.demoras.p_demora_positiva * 100, 2)}%` });
+    }
+    if (prob2.esperas && prob2.esperas.p_mayor_20 !== null) {
+        wsProb2.addRow({ metrica: 'Espera: P(espera > 20 min)', valor: `${redondear(prob2.esperas.p_mayor_20 * 100, 2)}%` });
+    }
+    if (prob2.binomial) {
+        wsProb2.addRow({ metrica: `Distribución Binomial (n = ${prob2.binomial.n}, p = ${redondear(prob2.binomial.p, 4)})`, valor: '' });
+        prob2.binomial.tabla.forEach(item => {
+            wsProb2.addRow({ metrica: `P(X = ${item.k})`, valor: `${redondear(item.probabilidad * 100, 2)}%` });
+        });
+    }
+
+    // ---------- Hoja 9: Conclusiones socio-técnicas ----------
+    const wsConcl = wb.addWorksheet('3-Conclusiones');
+    wsConcl.columns = [
+        { header: '#', key: 'n', width: 6 },
+        { header: 'Conclusión / Interpretación', key: 'texto', width: 120 }
+    ];
+    (conclusiones || []).forEach((texto, i) => wsConcl.addRow({ n: i + 1, texto }));
 
     return wb.xlsx.writeBuffer();
 }

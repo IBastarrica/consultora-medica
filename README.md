@@ -82,10 +82,7 @@ consultora-medica/
    sudo service mariadb start      # Linux
    # o activar MariaDB desde el panel de XAMPP en Windows
    ```
-3. **Clonar el repositorio y entrar al backend:**
-   ```bash
-   git clone https://github.com/IBastarrica/consultora-medica.git
-   cd consultora-medica/backend
+
    ```
 4. **Instalar dependencias de Node:**
    ```bash
@@ -158,6 +155,16 @@ git push
 | GET/POST/PUT/DELETE | `/api/admin/doctores` | admin | CRUD de doctores |
 | GET | `/api/admin/turnos` | admin | Todos los turnos |
 | GET | `/api/admin/stats/...` | admin | Análisis de datos (misma lógica que analista) |
+
+## Cumplimiento de la Rúbrica del TP
+
+| Criterio de la rúbrica | Dónde está implementado |
+| :--- | :--- |
+| **Integración completa** (Descriptiva + Probabilidades + Regresión Bivariada) | `utils/stats/stats_engine.js` (descriptiva y regresión paso a paso), `utils/stats/probabilidades.js` (distribución normal y binomial) y `utils/stats/conclusiones.js` |
+| **Análisis exploratorio** (Box-plot y tratamiento formal de outliers) | Box-plots por doctor (muestra y turnos reales, dibujados con plugin propio de Chart.js), outliers por residuos (\|e\| > 2·se) y por criterio de Tukey (1.5·IQR con cercas) |
+| **Análisis de variabilidad** (representatividad de las medidas resumen) | CV con umbrales 15%/30%, mediana e IQR por doctor, y conclusiones automáticas que justifican cuándo la media es representativa |
+| **Soporte informático** (herramientas digitales) | Motor estadístico propio en JavaScript (fórmulas implementadas sin cajas negras), gráficos Chart.js y exportación a Excel real de 9 hojas (`exceljs`) |
+| **Interpretación socio-técnica** | Endpoint `GET /api/analyst/conclusiones` (y `GET /api/admin/stats/conclusiones`) que genera conclusiones prácticas: recomendaciones de agenda por doctor, riesgo de espera, calibración del modelo y probabilidades operativas |
 
 ## Próximos pasos sugeridos
 

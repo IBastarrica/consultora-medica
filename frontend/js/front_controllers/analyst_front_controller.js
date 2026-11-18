@@ -7,15 +7,22 @@
 const analystFrontController = {
     async load() {
         try {
-            const [descriptiva, regresion, analisisTurnos] = await Promise.all([
+            const [descriptiva, regresion, analisisTurnos, conclusiones] = await Promise.all([
                 apiService.request('/analyst/descriptiva'),
                 apiService.request('/analyst/regresion'),
-                apiService.request('/analyst/turnos/analisis')
+                apiService.request('/analyst/turnos/analisis'),
+                apiService.request('/analyst/conclusiones')
             ]);
 
             statsRenderer.renderDescriptiva(descriptiva, regresion);
             statsRenderer.renderRegresion(regresion);
+            statsRenderer.renderBoxplot('boxplotMuestra', descriptiva.boxplot, 'Tiempo de atención (min)');
+            statsRenderer.renderProbabilidades(descriptiva, 'tablaProbabilidades', regresion);
             statsRenderer.renderTurnosAnalisis(analisisTurnos);
+            statsRenderer.renderBoxplot('boxplotReales', analisisTurnos.boxplot, 'Tiempo real (min)');
+            statsRenderer.renderOutliersIQR(descriptiva, analisisTurnos, 'tablaOutliersIQR');
+            statsRenderer.renderProbabilidadesReales(analisisTurnos, 'tablaProbabilidadesReales');
+            statsRenderer.renderConclusiones(conclusiones.conclusiones, 'listaConclusiones');
         } catch (error) {
             UI.showToast(error.message, 'err');
         }

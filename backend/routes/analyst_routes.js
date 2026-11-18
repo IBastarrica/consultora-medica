@@ -15,6 +15,7 @@ router.use(verifyToken, requireRole('analista'));
 router.get('/descriptiva', analystController.getDescriptiva);
 router.get('/regresion', analystController.getRegresion);
 router.get('/turnos/analisis', analystController.getAnalisisTurnos);
+router.get('/conclusiones', analystController.getConclusiones);
 router.get('/exportar', analystController.exportarExcel);
 router.get('/doctores/:id/regresion', analystController.getRegresionDoctor);
 

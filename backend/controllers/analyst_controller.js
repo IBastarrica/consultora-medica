@@ -7,6 +7,8 @@
 const statsRepository = require('../repositories/stats_repository');
 const turnoRepository = require('../repositories/turno_repository');
 const stats = require('../utils/stats/stats_engine');
+const prob = require('../utils/stats/probabilidades');
+const { generarConclusiones } = require('../utils/stats/conclusiones');
 const { generarReporteExcel } = require('../utils/excel/excel_export');
 
 class AnalystController {
@@ -75,6 +77,19 @@ class AnalystController {
 
             const ordenados = doctores.filter(d => d.n >= 2).sort((a, b) => a.cv - b.cv);
 
+            // Datos para box-plot y outliers de Tukey (muestra)
+            const boxplot = [{ label: 'Global (n=100)', valores: [...todosLosTiempos] }]
+                .concat(doctores.filter(d => d.n >= 2).map(d => ({
+                    label: d.medico,
+                    valores: porDoctor.get(d.id_doctor).tiempos
+                })));
+            const outliersIqrGlobal = stats.outliersIQR(todosLosTiempos);
+            const outliersIqrDoctores = doctores.filter(d => d.n >= 2).map(d => ({
+                id_doctor: d.id_doctor,
+                medico: d.medico,
+                ...stats.outliersIQR(porDoctor.get(d.id_doctor).tiempos)
+            }));
+
             return {
                 n_total: todosLosTiempos.length,
                 general: general || { n: todosLosTiempos.length, media: 0, varianza: 0, desviacion: 0, cv: 0 },
@@ -83,7 +98,10 @@ class AnalystController {
                 medidas_posicion: posicionGlobal,
                 doctores,
                 doc_mas_homogeneo: ordenados[0] || null,
-                doc_mas_disperso: ordenados[ordenados.length - 1] || null
+                doc_mas_disperso: ordenados[ordenados.length - 1] || null,
+                boxplot,
+                outliers_iqr_global: outliersIqrGlobal,
+                outliers_iqr_doctores: outliersIqrDoctores
             };
     }
 
@@ -123,6 +141,17 @@ class AnalystController {
             const interpEdad = stats.interpretarCorrelacion(modeloEdad.r);
             const interpExp = stats.interpretarCorrelacion(modeloExp.r);
 
+            // Probabilidades (Unidad 2): modelo normal de los tiempos de la muestra
+            const stTiempos = stats.estadisticasUnivariadas(tiempos);
+            const probabilidades = {
+                media: Math.round(stTiempos.media * 100) / 100,
+                desvio: Math.round(stTiempos.desviacion * 100) / 100,
+                p_mayor_30: prob.probabilidadMayorQue(30, stTiempos.media, stTiempos.desviacion),
+                p_mayor_40: prob.probabilidadMayorQue(40, stTiempos.media, stTiempos.desviacion),
+                p_entre_25_35: prob.probabilidadEntre(25, 35, stTiempos.media, stTiempos.desviacion),
+                percentil_90: stTiempos.media + prob.cuantilNormal(0.90) * stTiempos.desviacion
+            };
+
             return {
                 n: registros.length,
                 registros,
@@ -137,7 +166,8 @@ class AnalystController {
                 covarianza_edad: modeloEdad.cov_xy,
                 spearman_edad: stats.spearman(edades, tiempos),
                 inferencia_edad: stats.inferenciaModelo(modeloEdad),
-                inferencia_exp: stats.inferenciaModelo(modeloExp)
+                inferencia_exp: stats.inferenciaModelo(modeloExp),
+                probabilidades
             };
     }
 
@@ -265,6 +295,47 @@ class AnalystController {
             const modeloCalibracion = stats.modeloBivariado(estimados, reals, registros);
             const interpCalibracion = stats.interpretarCorrelacion(modeloCalibracion.r);
 
+            // Box-plot y outliers de Tukey sobre tiempos reales
+            const boxplot = [{ label: 'Global', valores: [...todosReales] }]
+                .concat(doctoresResumen.map(d => ({
+                    label: d.medico,
+                    valores: porDoctor.get(d.id_doctor).reales
+                })));
+            const outliersIqrGlobal = stats.outliersIQR(todosReales);
+            const outliersIqrDoctores = doctoresResumen.map(d => ({
+                id_doctor: d.id_doctor,
+                medico: d.medico,
+                ...stats.outliersIQR(porDoctor.get(d.id_doctor).reales)
+            }));
+
+            // Probabilidades (Unidad 2) sobre la operación real
+            const stEsperas = stats.estadisticasUnivariadas(todasEsperas);
+            const pDemoraPositiva = todosDemoras.filter(v => v > 0).length / todosDemoras.length;
+            const probabilidades = {
+                reales: {
+                    media: generalReal.media,
+                    desvio: generalReal.desviacion,
+                    p_mayor_35: prob.probabilidadMayorQue(35, generalReal.media, generalReal.desviacion),
+                    p_mayor_40: prob.probabilidadMayorQue(40, generalReal.media, generalReal.desviacion)
+                },
+                demoras: {
+                    media: generalDemora ? generalDemora.media : null,
+                    desvio: generalDemora ? generalDemora.desviacion : null,
+                    p_mayor_10: generalDemora ? prob.probabilidadMayorQue(10, generalDemora.media, generalDemora.desviacion) : null,
+                    p_demora_positiva: pDemoraPositiva
+                },
+                esperas: {
+                    media: stEsperas ? stEsperas.media : null,
+                    desvio: stEsperas ? stEsperas.desviacion : null,
+                    p_mayor_20: stEsperas ? prob.probabilidadMayorQue(20, stEsperas.media, stEsperas.desviacion) : null
+                },
+                binomial: {
+                    p: pDemoraPositiva,
+                    n: 10,
+                    tabla: prob.tablaBinomial(pDemoraPositiva, 10)
+                }
+            };
+
             return {
                 n_total_turnos: turnos.length,
                 n_atendidos: atendidos.length,
@@ -293,7 +364,11 @@ class AnalystController {
                 spearman_real: stats.spearman(edades, reals),
                 spearman_calibracion: stats.spearman(estimados, reals),
                 inferencia_real: stats.inferenciaModelo(modeloEdadReal),
-                inferencia_calibracion: stats.inferenciaModelo(modeloCalibracion)
+                inferencia_calibracion: stats.inferenciaModelo(modeloCalibracion),
+                boxplot,
+                outliers_iqr_global: outliersIqrGlobal,
+                outliers_iqr_doctores: outliersIqrDoctores,
+                probabilidades
             };
     }
 
@@ -319,11 +394,35 @@ class AnalystController {
                 this._obtenerAnalisisTurnos()
             ]);
 
-            const buffer = await generarReporteExcel({ descriptiva, regresion, turnos });
+            const buffer = await generarReporteExcel({
+                descriptiva,
+                regresion,
+                turnos,
+                conclusiones: generarConclusiones(descriptiva, regresion, turnos)
+            });
 
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader('Content-Disposition', 'attachment; filename="reporte_consultora_medica.xlsx"');
             res.send(buffer);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * @brief Conclusiones e interpretación socio-técnica generadas a partir de los tres análisis.
+     */
+    getConclusiones = async (req, res, next) => {
+        try {
+            const [descriptiva, regresion, turnos] = await Promise.all([
+                this._obtenerDescriptiva(),
+                this._obtenerRegresion(),
+                this._obtenerAnalisisTurnos()
+            ]);
+
+            res.json({
+                conclusiones: generarConclusiones(descriptiva, regresion, turnos)
+            });
         } catch (error) {
             next(error);
         }

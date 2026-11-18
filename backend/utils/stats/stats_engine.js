@@ -347,6 +347,24 @@ function inferenciaModelo(m) {
     };
 }
 
+/**
+ * @brief Detección de valores atípicos por el criterio de Tukey (1.5 · IQR).
+ * @param {number[]} valores - Serie numérica.
+ * @returns {Object|null} Cercas inferior/superior y lista de valores atípicos.
+ */
+function outliersIQR(valores) {
+    const pos = cuartiles(valores);
+    if (!pos) return null;
+    const cercoInferior = pos.q1 - 1.5 * pos.iqr;
+    const cercoSuperior = pos.q3 + 1.5 * pos.iqr;
+    const atipicos = valores.filter(v => v < cercoInferior || v > cercoSuperior);
+    return {
+        cerco_inferior: cercoInferior,
+        cerco_superior: cercoSuperior,
+        atipicos
+    };
+}
+
 module.exports = {
     estadisticasUnivariadas,
     clasificarHomogeneidad,
@@ -354,6 +372,7 @@ module.exports = {
     interpretarCorrelacion,
     predecirTiempoTurno,
     cuartiles,
+    outliersIQR,
     spearman,
     pValorT,
     tCritico,
