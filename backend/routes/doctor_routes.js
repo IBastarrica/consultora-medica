@@ -13,7 +13,6 @@ const { validateTurnoUpdate } = require('../middleware/validation_middleware');
 // Cadena de seguridad: token válido + rol medico
 router.use(verifyToken, requireRole('medico'));
 
-router.get('/perfil', doctorController.getPerfil);
 router.get('/turnos', doctorController.getTurnos);
 router.put('/turnos/:id', validateTurnoUpdate, doctorController.updateTurno);
 router.get('/pacientes/:id/historia', doctorController.getHistoriaPaciente);

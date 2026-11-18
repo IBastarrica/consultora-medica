@@ -427,49 +427,6 @@ class AnalystController {
             next(error);
         }
     }
-
-    /**
-     * @brief Regresión individual de un doctor sobre sus consultas.
-     */
-    async getRegresionDoctor(req, res, next) {
-        try {
-            const { id } = req.params;
-            const consultas = await statsRepository.findConsultasByDoctor(id);
-
-            if (consultas.length === 0) {
-                return res.status(404).json({ message: 'No hay consultas registradas para este doctor.' });
-            }
-
-            const registros = consultas.map(c => ({
-                id: c.id_consulta,
-                edad: c.edad_paciente,
-                experiencia: c.anios_experiencia_doc,
-                tiempo: c.tiempo_atencion_min,
-                medico: c.medico,
-                especialidad: c.especialidad
-            }));
-
-            const edades = registros.map(r => r.edad);
-            const tiempos = registros.map(r => r.tiempo);
-
-            const modeloEdad = stats.modeloBivariado(edades, tiempos, registros);
-            const interp = stats.interpretarCorrelacion(modeloEdad.r);
-
-            res.json({
-                id_doctor: Number(id),
-                medico: registros[0] ? registros[0].medico : null,
-                especialidad: registros[0] ? registros[0].especialidad : null,
-                n: registros.length,
-                registros,
-                modelo_edad: modeloEdad,
-                fuerza: interp.fuerza,
-                sentido: interp.sentido,
-                outliers: modeloEdad.outliers
-            });
-        } catch (error) {
-            next(error);
-        }
-    }
 }
 
 module.exports = new AnalystController();

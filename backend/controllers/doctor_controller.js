@@ -11,22 +11,6 @@ const i18n = require('../utils/i18n/i18n');
 
 class DoctorController {
     /**
-     * @brief Perfil del doctor vinculado al usuario autenticado.
-     */
-    async getPerfil(req, res, next) {
-        try {
-            const doctor = await doctorRepository.findByUser(req.userId);
-            if (!doctor) {
-                const message = i18n.getMessage('CT_DOCTOR_NO_PROFILE');
-                return res.status(404).json({ message });
-            }
-            res.json(doctor);
-        } catch (error) {
-            next(error);
-        }
-    }
-
-    /**
      * @brief Turnos asignados al doctor autenticado (con datos del paciente).
      * @details ?pendientes=1 filtra solo turnos Activos/Confirmados con fecha >= hoy.
      */

@@ -147,7 +147,7 @@ git push
 | PUT | `/api/doctor/turnos/:id` | medico | Modificar estado/hora/duración/notas |
 | GET | `/api/analyst/descriptiva` | analista | Descriptiva y CV por doctor |
 | GET | `/api/analyst/regresion` | analista | Regresión, r, R², outliers |
-| GET | `/api/analyst/doctores/:id/regresion` | analista | Regresión individual de un doctor |
+| GET | `/api/analyst/turnos/analisis` | analista | Espera, demora, box-plot y probabilidades (en vivo) |
 | GET | `/api/admin/users` | admin | Listar usuarios (incluye estado activo/inactivo) |
 | PUT | `/api/admin/users/:id/role` | admin | Cambiar rol |
 | PUT | `/api/admin/users/:id/desactivar` | admin | Desactivar usuario (soft delete, conserva historial) |

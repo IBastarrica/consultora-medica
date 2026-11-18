@@ -394,11 +394,6 @@ BEGIN
     SELECT ROW_COUNT() AS affected;
 END //
 
-CREATE PROCEDURE sp_delete_user(IN p_id INT)
-BEGIN
-    DELETE FROM users WHERE id = p_id;
-END //
-
 CREATE PROCEDURE sp_deactivate_user(IN p_id INT)
 BEGIN
     UPDATE users SET activo = 0 WHERE id = p_id;

@@ -34,6 +34,5 @@ router.get('/stats/regresion', adminController.getRegresion);
 router.get('/stats/turnos-analisis', adminController.getAnalisisTurnos);
 router.get('/stats/conclusiones', adminController.getConclusiones);
 router.get('/stats/exportar', adminController.exportarExcel);
-router.get('/stats/doctores/:id/regresion', adminController.getRegresionDoctor);
 
 module.exports = router;

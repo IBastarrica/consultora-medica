@@ -171,10 +171,6 @@ class AdminController {
         return analystController.getRegresion(req, res, next);
     }
 
-    getRegresionDoctor(req, res, next) {
-        return analystController.getRegresionDoctor(req, res, next);
-    }
-
     getAnalisisTurnos(req, res, next) {
         return analystController.getAnalisisTurnos(req, res, next);
     }
