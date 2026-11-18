@@ -69,23 +69,71 @@ consultora-medica/
 
 ## Puesta en Marcha
 
-1. **Requisitos:** Node.js 18+, MariaDB/MySQL activo.
-2. **Instalar dependencias:**
+### Flujo A — Primera vez (equipo sin nada instalado)
+
+1. **Instalar requisitos:**
+   - **Node.js 18 o superior:** desde https://nodejs.org (instalador LTS).
+   - **MariaDB:** con XAMPP/Laragon (Windows) o en Linux:
+     ```bash
+     sudo apt update && sudo apt install mariadb-server nodejs npm
+     ```
+2. **Iniciar MariaDB** (según tu instalación):
    ```bash
-   cd backend
+   sudo service mariadb start      # Linux
+   # o activar MariaDB desde el panel de XAMPP en Windows
+   ```
+3. **Clonar el repositorio y entrar al backend:**
+   ```bash
+   git clone https://github.com/IBastarrica/consultora-medica.git
+   cd consultora-medica/backend
+   ```
+4. **Instalar dependencias de Node:**
+   ```bash
    npm install
    ```
-3. **Inicializar la base de datos** (crea la BD, el usuario PoLP, tablas, 10 Stored Procedures y los seeds: 5 doctores, 100 consultas, turnos de ejemplo):
+5. **Configurar variables de entorno:**
+   ```bash
+   cp .env.example .env
+   # Editar .env solo si tus credenciales de MariaDB difieren (DB_HOST/DB_USER/DB_PASS)
+   ```
+6. **Crear la base de datos** (crea BD, usuario PoLP, tablas, stored procedures y datos semilla: 27 usuarios, 5 doctores, 100 consultas y ~49 turnos):
    ```bash
    npm run db:setup
    ```
-4. **Iniciar el servidor:**
+   *(Si el usuario root de MariaDB tiene contraseña: `ROOT_PASS=tuclave npm run db:setup`)*
+7. **Verificar la conexión** (opcional):
+   ```bash
+   npm run db:check
+   ```
+8. **Iniciar el servidor:**
    ```bash
    npm start
    ```
-   👉 `http://localhost:4000`
+   👉 Abrir `http://localhost:4000` y entrar con los usuarios semilla (todos con contraseña `123456`):
+   `admin`, `analista`, `pepe`/`maria` (pacientes), `dr.perez`/`dra.gomez`/`dr.rodriguez`/`dra.blanco`/`dr.martinez` (médicos).
 
-5. *(Opcional)* Verificar conectividad: `npm run db:check`
+### Flujo B — Ya está todo instalado (después de cada cambio)
+
+| Qué cambiaste | Qué tenés que hacer |
+| :--- | :--- |
+| Solo frontend (`.html`, `.css`, `.js` de `frontend/`) | **Nada.** Recargar el navegador con `Ctrl + F5` (forzar caché) |
+| Backend `.js` (controllers, routes, middleware, utils) | Reiniciar el servidor: `Ctrl + C` en la terminal y de nuevo `npm start` |
+| `config/init.sql` (tablas, stored procedures o seeds) | Recrear la BD: `npm run db:setup` y reiniciar `npm start` |
+| Nueva librería en `package.json` | `npm install` y reiniciar `npm start` |
+
+Comandos de reinicio rápido (desde `backend/`):
+```bash
+# matar el servidor anterior y levantar el nuevo
+pkill -f "node server.js" ; npm start
+```
+
+Subir los cambios a GitHub:
+```bash
+cd consultora-medica          # raíz del proyecto
+git add -A
+git commit -m "Descripción del cambio"
+git push
+```
 
 ## Endpoints de la API
 
